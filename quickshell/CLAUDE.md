@@ -1,0 +1,114 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## What this is
+
+A custom Quickshell (QML-based Wayland shell toolkit) "Dynamic Island" for Hyprland, living entirely in `~/.config/quickshell/`. Not a git repo, no build system, no test suite — it's a live-reloaded desktop config. `shell.qml` is the entry point (`ShellRoot { DynamicIsland {} }`), and `DynamicIsland.qml` is the whole state machine.
+
+## Running / testing
+
+There is no build step — Quickshell interprets the QML directly.
+
+```bash
+qs                      # run in foreground, hot-reloads on file save
+timeout 5 qs > /tmp/log 2>&1; cat /tmp/log   # headless syntax/runtime-error check
+```
+
+**Reading the live instance's log**: `qs log` without `-i` can pick up a stale instance's log. Use `qs list` to get the running instance ID, then `qs log -i <id> -t 300`. A hot reload that fails (syntax error) keeps the previous config running — if a change seemingly has no effect, check the live log for a failed reload, and restart with `qs kill -i <id>` + `hyprctl eval 'hl.dispatch(hl.dsp.exec_cmd("qs"))'`.
+
+Claude cannot see the screen or click the UI. The verification loop for every change is: run the `timeout ... qs` pattern above and grep the log for `ReferenceError`/`TypeError`/`WARN scene` (real problems) vs. benign noise (`WARN quickshell.service.notifications` duplicate registration when the user's own `qs` is already running, `WARN qt.qpa.services` portal registration) — then ask the user to visually confirm live, since only they can click the actual island. Never claim a visual/behavioral fix is done without that live confirmation.
+
+The user communicates in Hungarian; match that when talking to them.
+
+## Architecture
+
+**Single-surface state machine, not multiple windows.** `DynamicIsland.qml` is one `PanelWindow` (wlr-layer-shell, `WlrLayershell.layer: Overlay`) with a **fixed** `implicitWidth`/`implicitHeight`. Only an inner `Rectangle id: notch` animates its `width`/`height` via `Behavior on width/height { NumberAnimation }`. Never resize the actual `PanelWindow`/surface itself — that causes compositor-level stutter and re-centering jumps; resize the inner Rectangle instead and let content be masked/clipped by it (`notch.clip: true`).
+
+**`displayState` is a single derived (`readonly property string`) state machine**, not scattered booleans:
+
+```qml
+readonly property string displayState: {
+    if (volumeActive) return "volume"
+    if (brightnessActive) return "brightness"
+    if (notificationActive) return "notification"
+    if (overviewPanelOpen) return "overview"
+    if (mediaExpandedRequested) return "mediaExpanded"
+    return "idle"
+}
+```
+
+There is no separate "mediaMini" state — the idle pill's own content conditionally shows an album-art thumbnail / title text / lyrics line next to the clock while something plays (`settingsStore.idlePlayerMode`), so "idle" is the single terminal fallback whether or not media is playing.
+
+Every content block (clock, media-mini row, notification, media-expanded, quick-overview panel) is an always-present sibling inside `notch`, cross-faded via the same repeated pattern:
+
+```qml
+opacity: island.displayState === "X" ? 1 : 0
+scale: island.displayState === "X" ? 1 : 0.8   // or 0.9 for panel-style content
+visible: opacity > 0
+Behavior on opacity { NumberAnimation { duration: 220; easing.type: Easing.OutCubic } }
+Behavior on scale { NumberAnimation { duration: 220; easing.type: Easing.OutCubic } }
+```
+
+`notch`'s `width`/`height` are single `switch` statements keyed on `displayState`, not per-block ternaries scattered around. Only mutate root causes (`notificationActive`, `mediaExpandedRequested`, `overviewPanelOpen`, driven by `onMediaPlayingChanged`/`onNotificationActiveChanged`) — never branch on `displayState` itself to decide whether to close a panel, since it's derived and would immediately fight the write.
+
+**One-purpose monitor components.** Each external data source gets its own tiny `Item`-based `.qml` file exposing `readonly property`s and nothing else (`MprisMonitor`, `MicMonitor`, `CameraMonitor`, `BatteryMonitor`). They're instantiated once in `DynamicIsland.qml`'s "early-id block" (see below) and referenced by `id` everywhere else. `LyricsProvider` is a monitor-shaped component but is somewhat larger (parsing + network fallback) and takes `player: mprisMonitor.activePlayer` as input.
+
+**Early-id block convention.** All monitor/provider instances (`MprisMonitor`, `MicMonitor`, `LyricsProvider`, `CameraMonitor`, `BatteryMonitor`) are declared at the very top of `DynamicIsland.qml`, before any property bindings reference them by `id`. This isn't cosmetic: a live QML hot-reload can evaluate a property binding before a later-declared `id` exists, producing a real `"X is not defined"` `ReferenceError` on reload. New monitors go in this block, in declaration order before anything that reads them.
+
+**`mask: Region` mirrors visible hit-test area.** The `PanelWindow`'s `mask` must list every clickable/visible region that isn't already covered by another listed region, or clicks/compositing behave oddly outside the actual drawn shape. Today that's just `notch` — everything the island shows (including the idle row's badges, which used to live in a separate `badgesRow` with its own mask entry before being folded into `notch`'s own `idleRow`) renders inside `notch` and is covered by its single region. When a component moves from being a sibling window-region to being content *inside* `notch` (as happened with `QuickOverviewPanel`, and later `badgesRow`), remove its standalone `Region` entry — it's now covered by `notch`'s own region.
+
+**Design tokens + motion** (Rice Phase 2): `Theme.qml` is a `pragma Singleton` with fonts, iOS dark palette, radii and motion constants — new/reworked UI reads from it. `notch`'s width/height use `SpringAnimation` (`Theme.springStiffness`/`springDamping`) for the elastic iPhone-island morph; content `scale` Behaviors use `Easing.OutBack`. `QuickOverviewPanel` sub-views push/pop horizontally (`transform: Translate`, sub-views from the right, root overview to the left). `ToggleSwitch.qml` is the one shared switch (don't re-inline copies).
+
+**Two island looks, tied to the Liquid Glass setting**: off → solid `#000000` notch with flared "ears"; on → `island.surfaceColor` becomes translucent black, ears hide, and hyprglass's `island` preset (`look-and-feel.lua`, fresnel/specular 0 so no grey rim; global glass uses tint alpha 0 + contrast/brightness 1.0 so black stays black) frosts it, macOS Tahoe style. Glass mode keeps the island black: `notch` is a translucent frosted fill (`island.surfaceColor`), four stacked 0.3-alpha rings inset over `island.glassRim` (7px) darken it into the solid `notchCore` — a gradient rim. The ears use the same rim translucency; side badges stay solid black.
+
+**No `QtQuick.Controls` anywhere.** Buttons, toggles, and pills are hand-rolled `Rectangle` + `MouseArea` (+ `Text`/`IconImage`), matching `IndicatorBadge.qml`'s style. Keep new UI consistent with this rather than introducing Controls.
+
+**Icon recoloring pattern**: symbolic SVGs are recolored via a flat-fill-via-alpha-mask, NOT `MultiEffect.colorization` — `colorization` blends the target color proportional to the source glyph's own luminance rather than fully replacing it, so a dark icon-theme fill (e.g. Adwaita's `#2e3436`) never reaches a true flat color even at `colorization: 1.0` (confirmed and fixed everywhere this was used, project-wide). The correct pattern: `IconImage { source: "image://icon/<name>"; visible: false; layer.enabled: true }` (the `layer.enabled` is required — without it there's no rendered texture for the mask to sample, and the icon renders blank) + a flat-colored `Rectangle { color: <target>; visible: false }` + `MultiEffect { source: <that Rectangle>; maskEnabled: true; maskSource: <the IconImage> }`. Never rely on the icon theme's own color, and never use `colorization` for a flat target color.
+
+**Reusable inline sub-widgets** use QML's `component X: Item { ... }` inline declarations inside the file that needs them (e.g. `MediaButton` in `MediaControls.qml`, `RowIcon`/`PlaceholderToggle` in `QuickOverviewPanel.qml`, `ProfileButton`/`StatTile`/`SegmentButton` in `BatteryPanel.qml`) rather than separate files, when the component is only used within that one parent. `PanelHeader.qml` is the deliberate exception — a genuine shared file, since its icon+title+subtitle+toggle+refresh+gear+close markup is otherwise identically duplicated across Battery/Bluetooth/Wifi/Settings panels.
+
+**`Quickshell.Io.Process` commands are always argv-lists**, never `sh -c` string concatenation, whenever any part of the command could contain untrusted/dynamic data (e.g. MPRIS track metadata passed to `curl --data-urlencode`). This avoids shell injection from a hostile or malformed track title/artist. (The one exception, `CameraMonitor.qml`'s `fuser /dev/video*`, uses a fixed literal string with no interpolated data, which is why it's safe as `sh -c`.)
+
+**MPRIS position isn't reactive.** `MprisPlayer.position` doesn't emit `positionChanged` while simply playing (only on seek/play/pause), so anything that needs to track live playback position (seek bar fill, lyrics sync) drives a `Timer` that force-reads/re-emits rather than binding directly. The media seek bar (`MediaControls.qml`) goes further: it re-reads the real position when the controls become visible and every second, and interpolates `livePos` every frame with a `FrameAnimation` — no width Behavior, so opening the card never slides the fill in from zero. The lyrics use the 500ms poll in `DynamicIsland.qml`. Synthetic cursor moves (`hl.dsp.cursor.move`) do NOT deliver hover to the island, so hover UI can only be verified live by the user.
+
+**Accent color**: monochrome since 2026-09-19 (white = active); `#ff453a` red only for errors/destructive actions, green `#32d74b` for charging. Background `#000000`, primary text/icon color `#ffffff` (pure white — changed from the original cream `#f5e2c5` per explicit user request; a "colorize toward white" render on a dark icon-theme SVG doesn't reach true white anyway, see the icon-recolor pattern note below), dimmed text/icons via `opacity` on the same white. Keep new UI consistent with this palette rather than introducing new colors ad hoc.
+
+**Round-2 components** (2026-09-26): `OsdPill.qml` is the one OSD: volume/brightness = tall white slider with the icon inside (300×64, no text), Caps Lock/mic = icon capsule at idle-pill size. Brightness is stepped by the island (`BrightnessMonitor.step()`, IPC `brightness up/down` bound to the XF86 keys) — don't go back to `brightnessctl set N%±`. `PanelHeader.accent` gives a colored iOS app-icon squircle. `ChargingView.qml` + shared `BoltShape.qml` for the charger moment and the idle bolt badge. `CalcSmart.js` (dates/currency/units, pure JS, node-testable) is called through `CalcEngine.smart()`, rates from the `CurrencyRates` singleton. Clipboard = `ClipboardMonitor` (cliphist) + `ClipboardPanel` (exclusive type-first state `clipboard`). Calendar = `CalendarStore` (calendar.json, fires reminders via notify-send → the island's own notification server) + `CalendarParse.js` + `CalendarPanel` (overview sub-view). Useful test IPC: `overview open <view>`, `calculator open <expr>`, `battery chargeTest`.
+
+**Testing pure-JS logic**: keep parsers in `.pragma library` `.js` files and test them with node by stripping the pragma line (`new Function(src + ";return {…}")`). The overview's type-first sub-views (calculator, calendar, shortcuts, settings, theme) are listed in both `textEntryActive` and `typeFirstPanelOpen`.
+
+**Hot reload vs. focus grab**: after a hot reload, type-first panels sometimes don't open (or screenshots still show the old UI); restart the instance by PID before judging a change.
+
+## Known bug classes already hit in this codebase (avoid repeating)
+
+- **Forward `id` references**: see "early-id block convention" above.
+- **Bitwise enum matching instead of exact equality**: `n.type & PwNodeType.AudioInStream` matched `AudioOutStream` too (shared bits) causing a false-positive mic badge during playback. Always use `===` for enum equality checks, not `&`.
+- **Null-guard gaps**: any `Connections`/`Timer`/binding touching `mprisMonitor.activePlayer`, `batteryMonitor.device`, etc. must guard for `null` — players/devices can disappear mid-callback.
+- **Simultaneous resize + fade-in "growing into place" artifact**: fixed via `clip: true` on the resizing container and fading content in/out alongside (not independent of) the resize `Behavior`.
+- **`anchors.centerIn: parent` tracking a live-animating parent size**: causes visible drift (e.g. the clock sliding down while `notch` grows for another state). Fix: anchor to a fixed point (e.g. `anchors.top` + a margin computed from the target band's own fixed height) instead of centering in the currently-animating dimension.
+- **QML property syntax**: font sub-properties (`letterSpacing`, `weight`, `family`, `pixelSize`) must be inside a `font { ... }` group property block on `Text`, not assigned directly as top-level properties — direct assignment is a load-time error (`Cannot assign to non-existent property`).
+- **`ListView` delegate recycling flash**: a delegate scrolled back into view can be freshly re-created and briefly render its default/non-current state before `ListView.isCurrentItem` catches up. Fix with a generous `cacheBuffer` for short lists rather than fighting recycling.
+- **Animating `scale` + `font.pixelSize` together on text**: pushes wrapped lines past the container edge and forces a full relayout every frame (stutter). Prefer animating only `color`/`opacity` for text emphasis changes.
+- **`hyprctl keyword` does not work on this system**: this Hyprland config is Lua-based (`hl.config(...)` in `~/.config/hypr/config/*.lua`), and `hyprctl keyword <anything>` fails with `"keyword can't work with non-legacy parsers. Use eval."` — confirmed for every keyword tried, not just theme-related ones. Use `hyprctl eval '<lua expression>'` instead, shaped as a live `hl.config(...)` call mirroring the target option's structure in the actual `.lua` config files (see `ThemeColorMonitor.qml`'s `active_border`/`inactive_border` `Process` commands for a real example). Verify any new Hyprland-setting integration with `hyprctl getoption` after applying, not just an absence of QML errors.
+- **Workspace switching via hyprctl**: `hyprctl dispatch workspace N` fails on the Lua config — use `hyprctl eval 'hl.dispatch(hl.dsp.focus({ workspace = N }))'`. Window glass only re-renders on redraw, so force one before screenshot-measuring.
+- **hyprglass must be loaded at login**: `hyprpm enable` alone doesn't load anything — `autostart.lua` runs `hyprpm reload -n`. Toggle it with `hyprctl eval 'hl.plugin.hyprglass.config({ enabled = … })'`, never `hyprctl keyword`.
+- **Power profiles go through tlp-pd + Quickshell's `PowerProfiles`** (not `sudo tlp …`). `PowerProfiles.degradationReason` is an enum (`PerformanceDegradationReason`), not a string.
+- **`MultiEffect` mask icons rendered as solid unmasked squares/circles, project-wide** (2026-09-17): every single flat-fill-via-alpha-mask icon in the whole config — `PanelHeader.qml`'s `MaskIcon`, and the near-identical `RowIcon` in `IslandHeaderRow.qml`/`QuickOverviewPanel.qml`/`ThemePanel.qml`/`BluetoothPanel.qml`/`WifiPanel.qml`/`WeatherPanel.qml`/`MediaControls.qml`/`IndicatorBadge.qml`/`DynamicIsland.qml` (15 instances total) — was rendering as the flat, unmasked source color instead of the icon's actual shape. Confirmed via live screenshots (`grim`), not just log inspection — headless/log checks alone never catch this class of bug since there's no QML error, just wrong pixels. Root cause: `maskThresholdMin` defaults to `0.0`, and every one of these had `maskSpreadAtMin: 0.15` set without ever setting `maskThresholdMin` itself — since real alpha values can't go negative, the effective transition band (`thresholdMin ± spread` = `-0.15..0.15`) put literally all alpha values (0 included) inside or above the "visible" range, so the mask stopped discriminating icon-shape from background and the whole source rectangle showed through. Fix: always pair `maskSpreadAtMin`/`maskSpreadAtMax` with explicit `maskThresholdMin: 0.5` / `maskThresholdMax: 1.0` (or otherwise ensure the threshold sits comfortably away from the spread's natural clamp at 0/1) on every `MultiEffect { maskEnabled: true, ... }` block — never leave `maskThresholdMin`/`maskThresholdMax` at their implicit defaults when a nonzero spread is set.
+- **Soft gradient masks** (fades, not icon cut-outs): use `maskThresholdMin: 0.5` + `maskSpreadAtMin: 1.0` — that's `smoothstep(0, 1, maskAlpha)`. `0.0` + `1.0` shifts the whole ramp below zero, so every pixel stays fully visible and the "fade" silently does nothing (the lyrics edge fade shipped like that).
+- **FileView + JsonAdapter saves must be debounced**: `writeAdapter()` re-reads the file shortly after writing, so properties changed right after a write snap back to the just-written old values (verified in an isolated test). `SettingsStore` saves via a 150 ms `saveTimer` on `onAdapterUpdated`, with `watchChanges: false`. This was the real "theme border doesn't change" bug.
+- **Canvas `destination-out` erases with the current fillStyle's alpha** — set an opaque fillStyle before erasing, or a translucent fill only partially erases (the notch ears became frosted squares under glass).
+- **Wallpaper-driven matugen runs for previews use `--dry-run`** (`MatugenMonitor.applyFromWallpaper(path, true)`), otherwise they rewrite GTK/qt6ct/spicetify even when Dynamic isn't the active theme.
+- **`Canvas` inside a hidden panel may never get `onPaint`** — prefer `Shape` + `PathSvg` with a bound path string for data-driven curves (see `WeatherPanel.qml`'s hourly curve).
+- **Idle content must wait for `notch.settled`** (width/height within a few px of `targetWidth`/`targetHeight`), otherwise it appears inside a still-shrinking card during collapse. Content fades use the shared `FadeBehavior`/`ScaleBehavior` (fast exit, delayed entry).
+- **Some Adwaita "legacy" symbolic icons are raster-PNG-in-SVG hybrids that Qt's SVG renderer can't mask correctly**: a small number of Adwaita icons (found so far: `preferences-desktop-appearance-symbolic`) are built as an embedded base64 PNG wrapped in an SVG `<mask>`/`<filter feColorMatrix>` rather than plain vector paths — Qt's SVG module doesn't fully support SVG filters, so `IconImage`'s rendering of these specific files degrades to a solid block regardless of the masking code being correct (confirmed: `ImageMagick` renders the exact same file correctly, proving the SVG itself is fine and the failure is Qt-side). Before using an unfamiliar icon name project-wide, grep the actual file for `<filter` / `<image` (`grep -o '<filter\|<image' $(find /usr/share/icons/Adwaita -iname '<name>.svg')`) — if either appears, pick a different, plain-vector icon instead (this project already avoids reusing any icon name that fails this check).
+
+- **`Math.random()` inside a size-dependent binding** (`x: Math.random() * root.width`) re-rolls every time the size changes — during the island's spring morph that's every frame, so particles jitter wildly. Store the random fraction once in a `readonly property real fx: Math.random()` and bind `x: fx * root.width`; give decorative layers a fixed size instead of `anchors.fill` on the animating notch.
+
+## Working style established with the user
+
+- Plan first (Plan mode / the plan file at `~/.claude/plans/`), implement in small independently-verifiable phases, then live-test via `qs` with the user doing the actual clicking.
+- When delegating a phase to a fork agent, pair it with a separate fork agent that runs `qs` headlessly and checks the diff for the bug classes above, before handing back for the user's live click-test.
+- Draw inspiration from reference projects/screenshots the user shares, but do not clone them — build the config's own distinct look and behavior.
+- Don't add features, settings, or panels beyond what's been explicitly asked for or is already in the plan file (`~/.claude/plans/most-van-egy-dynamic-transient-bird.md` — the rice roadmap; round 2: `~/.claude/plans/pasted-content-id-f8fc-clipboard-s-cheerful-shore.md`). Still deferred until asked: multi-player picker, lyrics caching, reduce-motion toggle.
+- Full-screen/exclusive island states (power menu, launcher) each have their own root-cause bool and are mutually exclusive via `closeAllPanels()`; any state that needs typing/arrow keys must be added to `WlrLayershell.keyboardFocus`.

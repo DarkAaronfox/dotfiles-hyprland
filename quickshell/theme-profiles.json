@@ -1,0 +1,94 @@
+{
+    "profiles": [
+        {
+            "name": "T480",
+            "accent": "#ff453a",
+            "kitty": {
+                "background": "#0a0a0a",
+                "foreground": "#c8c8c8",
+                "cursor": "#ff3333",
+                "colors": [
+                    "#1a1a1a", "#cc0000", "#770000", "#404040",
+                    "#808080", "#bfbfbf", "#ff0000", "#ffffff",
+                    "#2a2a2a", "#cc2222", "#772222", "#404040",
+                    "#808080", "#bfbfbf", "#ff2222", "#ffffff"
+                ]
+            }
+        },
+        {
+            "name": "Blue",
+            "accent": "#5895f7",
+            "kitty": {
+                "background": "#0a0a0a",
+                "foreground": "#c8c8c8",
+                "cursor": "#5895f7",
+                "colors": [
+                    "#1a1a1a", "#3b82f6", "#1e417b", "#404040",
+                    "#808080", "#bfbfbf", "#5895f7", "#ffffff",
+                    "#2a2a2a", "#3b82f6", "#1e417b", "#404040",
+                    "#808080", "#bfbfbf", "#5895f7", "#ffffff"
+                ]
+            }
+        },
+        {
+            "name": "Purple",
+            "accent": "#b56ff8",
+            "kitty": {
+                "background": "#0a0a0a",
+                "foreground": "#c8c8c8",
+                "cursor": "#b56ff8",
+                "colors": [
+                    "#1a1a1a", "#a855f7", "#542b7c", "#404040",
+                    "#808080", "#bfbfbf", "#b56ff8", "#ffffff",
+                    "#2a2a2a", "#a855f7", "#542b7c", "#404040",
+                    "#808080", "#bfbfbf", "#b56ff8", "#ffffff"
+                ]
+            }
+        },
+        {
+            "name": "Green",
+            "accent": "#43ce76",
+            "kitty": {
+                "background": "#0a0a0a",
+                "foreground": "#c8c8c8",
+                "cursor": "#43ce76",
+                "colors": [
+                    "#1a1a1a", "#22c55e", "#11632f", "#404040",
+                    "#808080", "#bfbfbf", "#43ce76", "#ffffff",
+                    "#2a2a2a", "#22c55e", "#11632f", "#404040",
+                    "#808080", "#bfbfbf", "#43ce76", "#ffffff"
+                ]
+            }
+        },
+        {
+            "name": "Red",
+            "accent": "#ff584f",
+            "kitty": {
+                "background": "#0a0a0a",
+                "foreground": "#c8c8c8",
+                "cursor": "#ff584f",
+                "colors": [
+                    "#1a1a1a", "#ff3b30", "#801e18", "#404040",
+                    "#808080", "#bfbfbf", "#ff584f", "#ffffff",
+                    "#2a2a2a", "#ff3b30", "#801e18", "#404040",
+                    "#808080", "#bfbfbf", "#ff584f", "#ffffff"
+                ]
+            }
+        },
+        {
+            "name": "Yellow",
+            "accent": "#fbd438",
+            "kitty": {
+                "background": "#0a0a0a",
+                "foreground": "#c8c8c8",
+                "cursor": "#fbd438",
+                "colors": [
+                    "#1a1a1a", "#facc15", "#7d660b", "#404040",
+                    "#808080", "#bfbfbf", "#fbd438", "#ffffff",
+                    "#2a2a2a", "#facc15", "#7d660b", "#404040",
+                    "#808080", "#bfbfbf", "#fbd438", "#ffffff"
+                ]
+            }
+        }
+    ]
+}

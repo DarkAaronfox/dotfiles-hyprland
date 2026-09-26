@@ -1,0 +1,19 @@
+{
+    "autoLowPower": true,
+    "blurEnabled": true,
+    "calcHistoryAlways": false,
+    "cameraIndicatorEnabled": true,
+    "currentThemeProfile": "Dynamic",
+    "doNotDisturb": false,
+    "idleHeight": 0,
+    "idlePlayerMode": "art",
+    "idleWidth": 0,
+    "micIndicatorEnabled": true,
+    "pillMode": "pill",
+    "themeAccent": "#357c02",
+    "themeActiveBorder": "357c02ff",
+    "themeInactiveBorder": "476b2eaa",
+    "wallpaperFolder": "/home/aaron/Pictures/Wallpapers",
+    "weatherCity": "",
+    "weatherManualLocation": false
+}
