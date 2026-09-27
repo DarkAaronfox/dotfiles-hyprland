@@ -384,6 +384,11 @@ Everything outside `quickshell/`. Copy whichever folders you want into `~/.confi
 Inspired by:
 - Apple's Dynamic Island / iOS / macOS design;
 - [SilentSDDM](https://github.com/uiriansan/SilentSDDM) (the login flow);
-- [QS-DFMID26](https://github.com/Legfena/QS-DFMID26) (the theme carousel idea).
+- [QS-DFMID26](https://github.com/Legfena/QS-DFMID26) (the theme carousel idea);
+- [DynamicGlacier](https://github.com/mavxa/DynamicGlacier), the main design reference for the
+  island: the idle pill layout, the media card, the Bluetooth panel's sizing and the wallpaper
+  picker;
+- [impasto](https://github.com/andreumassanet/impasto) (the "whole desktop follows the wallpaper"
+  idea): how the accent color is picked from the wallpaper, and saving themes as named profiles.
 
 SF Pro fonts © Apple (used locally). Icons: Adwaita, plus custom vector shapes.
