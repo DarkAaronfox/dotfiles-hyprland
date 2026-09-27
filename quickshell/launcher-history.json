@@ -1,8 +1,9 @@
 {
     "counts": {
+        "brave-origin": 1,
         "kitty": 1,
-        "obsidian": 2,
-        "spotify-launcher": 3
+        "obsidian": 4,
+        "spotify-launcher": 4
     },
     "favorites": [
         "brave-origin",

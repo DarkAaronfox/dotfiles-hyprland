@@ -1,0 +1,29 @@
+[config]
+version_check = false
+
+[templates.qt6ct]
+input_path = "/home/aaron/.config/quickshell/matugen-templates/qt6ct.conf"
+output_path = "~/.config/qt6ct/colors/matugen.conf"
+
+[templates.gtk3]
+input_path = "/home/aaron/.config/quickshell/matugen-templates/gtk.css"
+output_path = "~/.config/gtk-3.0/gtk.css"
+
+[templates.gtk4]
+input_path = "/home/aaron/.config/quickshell/matugen-templates/gtk.css"
+output_path = "~/.config/gtk-4.0/gtk.css"
+
+[templates.spicetify]
+input_path = "/home/aaron/.config/quickshell/matugen-templates/spicetify.ini"
+output_path = "~/.config/spicetify/Themes/Sleek/color.ini"
+# `apply -n` (writes files, no restart) + a Chrome DevTools Protocol
+# reload instead of a full Spotify restart — confirmed live that
+# Spotify's already-running renderer never picks up a changed
+# colors.css/user.css on its own (no filesystem watch, `spicetify
+# refresh` didn't help either), but a real process restart is heavier
+# than needed: spicetify's own `watch -s` live-reload mode does exactly
+# this same CDP trick internally (confirmed by reading spicetify/cli's
+# own source). The first switch after Spotify was opened normally still
+# restarts once (to turn the debug port on); every switch after that is
+# a near-instant in-page reload, no restart.
+post_hook = "(pgrep -x spotify >/dev/null && spicetify apply -n && python3 /home/aaron/.config/quickshell/spotify_cdp_reload.py || true) >/dev/null 2>&1"

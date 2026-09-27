@@ -27,3 +27,5 @@ fish/fish_variables
 micro/backups/
 micro/buffers/
 quickshell/sddm/*/fonts/
+quickshell/notifications.json
+quickshell/activity.json

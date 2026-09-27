@@ -978,6 +978,100 @@ New `WeatherBackdrop.qml`, placed in `notch` behind `QuickOverviewPanel` and fad
 
 Headless + live logs clean after opening every panel/state via IPC (overview sub-views, launcher, clipboard, power, calculator smart queries, charge test, brightness, mic OSD, weather previews); node suites for CalcSmart / CalendarParse / the shortcuts parser still pass. Fixed: Bluetooth `rescan()` started discovery on a powered-off adapter ("Resource Not Ready" warning) → guarded; the screenshot-copy click spliced the file path into an `sh -c` string → positional `$1`; the weather sun-arc progress used a non-reactive `new Date()` (never moved while open) → minute tick + repaint on change; removed LocalSend's per-device `console.log`; removed the unused `AudioOutputPill.qml` (user rejected the pill). Static sweeps: every masked MultiEffect has thresholds, no `Math.random()` size bindings, no `colorization`, no stray TEMP/debug code; idle CPU ≈ 1.5 %, RSS ≈ 460 MB.
 
+## Round 2, Phase A — fixes: Wi-Fi QR, theme palettes, Spotify revert (2026-09-27)
+
+Plan: `~/.claude/plans/snuggly-splashing-kitten.md` (A fixes → B notification history → C live activities (recording, timers, rain) → D launcher files/emoji/web → E night light + reduce motion → F system monitor → G calculator redesign → H Obsidian theme).
+
+- **Wi-Fi QR not recognized by the phone camera**: the payload itself decoded fine with zbarimg, so rendering was the suspect (SVG rasterized at 304 px, drawn at ~152 px with `smooth:false`, 1-module margin, ~3 cm on screen). Now `qrencode -t ASCII` is parsed into a module matrix and drawn with a `Shape`/`PathSvg` at an integer pixel size per module with the standard 4-module quiet zone, ~240 px (tap to enlarge up to 400 px). Verified by grabbing the real panel and decoding it with zbarimg (password masked, screenshot deleted). New IPC `qs ipc call wifi toggle`.
+- **Theme palettes**: presets had bright 8–15 as exact copies of 0–7 and bright black `#2a2a2a` (autosuggestions/comments invisible). User chose to keep the monochrome style. New `ThemePalette.js` (imported by `ThemeProfiles.qml`, node-testable): accent shades in the colored slots + greys, bright pairs on fixed higher lightness steps, bright black `#6b6b6b`, colored slots ≥ 3.5:1 contrast, final de-duplication pass (all 16 distinct). Blue/Purple/Green/Red/Yellow regenerated in `theme-profiles.json` (backup `.bak-palette`), T480 untouched; Dynamic uses the same generator. Re-applied Dynamic (kitty backup `current-theme.conf.bak-palette`).
+- **Spotify revert** to plain spicetify + Marketplace: backups `~/.config/spicetify.bak-revert-20260927`, `~/.config/matugen/config.toml.bak-spicetify`; removed `[templates.spicetify]` (+ CDP post_hook) from matugen, deleted `Themes/Sleek`, `current_theme = marketplace`, `spicetify apply -n` (takes effect on the next Spotify start). `spotify_cdp_reload.py` and `matugen-templates/spicetify.ini` are now unused. Gotcha: `spicetify config <key>` with two keys SETS the first to the second — read the ini file instead.
+
+## Round 2, Phase B — notification history (2026-09-27)
+
+`NotificationStore.qml` (early-id block) copies every notification into `items` (newest first, max 100: uid, app, summary, body without markup, icon — image/appIcon file or icon name — time), persisted debounced to `notifications.json`; the 20 newest Notification objects stay `tracked` (in `_live`) so a click can still invoke their default action, older ones are released (replaces the old "untrack the previous one" logic). `unread` counts arrivals since the panel was last opened. `NotificationsPanel.qml` — exclusive type-first state `notifications` (460 wide, height grows with the list up to 560): groups by app (ordered by newest), relative times, click = default action + remove, ✕ on hover, swipe sideways to dismiss, per-app "Clear", "Clear all", empty state; Esc closes. Unread dot (accent) in the idle pill's top-right corner. IPC `notifications toggle` / `clear`; SUPER+N (keybindings backup `.bak-notif`). Verified with three notify-send test notifications (cleared afterwards).
+
+## Round 2, Phase C — live activities (2026-09-27)
+
+- `ActivityStore.qml` (early-id block): **screen recording** via `gpu-screen-recorder -w screen -f 60 -a default_output -o ~/Videos/Recordings/Recording_<date>.mp4` (argv; stopped with `Process.signal(2)` so the file is finalized; "saved"/"failed" notifications; a 1.5 s start check reports "Install it with: sudo pacman -S gpu-screen-recorder" when the binary is missing). **Timer / stopwatch / pomodoro** (25 min focus / 5 min break, every 4th break 15 min): timestamps persisted (debounced) in `activity.json` so they survive reloads; pause/resume, +1 min, stop; finishing plays `complete.oga` (pw-play) and notifies. `parseDuration()` accepts "5m", "90s", "1h30m", "25" (minutes), "1:30", Hungarian units.
+- `WeatherMonitor`: `minutely_15=precipitation,precipitation_probability` (4 slots); `rainInMinutes` = first slot with ≥ 0.2 mm or ≥ 60 %; `rainSoon` (≤ 30 min and not raining now). The island notifies once on the rising edge if Settings `rainAlert` (default on).
+- `LiveActivityChip.qml` at the left of the idle pill's clock row: recording (pulsing red dot + elapsed) > timer (progress ring, stopwatch ring spins; + time, dimmed while paused) > rain (🌧 + minutes). Click → exclusive state `activity` (`ActivityPanel.qml`, 460 wide): recording row with Stop, big timer with ring + Pause/Resume, +1 min, Stop, rain line, and quick starters (5/10/25 min, Stopwatch, Pomodoro, Record screen) when nothing runs.
+- IPC `activity toggle | record | timer <duration> | stopwatch | pomodoro | stop`; SUPER+R = record toggle.
+
+Verified: 2-minute timer chip + panel screenshots, record without the package → the install hint notification. Recording itself needs the user to install gpu-screen-recorder.
+
+## Round 2, Phase D — launcher: commands, emoji, files, web (2026-09-27)
+
+`LauncherPanel` list = [favorite tiles] + `preRows` + apps + `postRows`, one flat selection index (`rowAt()`/`itemAt()`), generic delegate for non-app rows (glyph square + title + sub).
+- **Commands** (needs `activity: activityStore`): `timer 5m` / `t 90s` / `időzítő 25` → "Start timer · 5:00"; `stop…`, `pomo…`, `rec…` → stopwatch / pomodoro / record (toggle).
+- **Emoji**: `:query` → up to 40 matches from bundled `emoji.json` (1923 fully-qualified emoji, no skin-tone variants, generated from Unicode `emoji-test.txt`), ranked exact → prefix → whole word → substring; Enter copies (wl-copy).
+- **Files**: `plocate -i -l 60 -- q` (argv, 220 ms debounce, ≥ 3 chars), `$HOME` only, hidden paths / node_modules / __pycache__ / target skipped, top 5 with type glyphs; Enter = xdg-open, Ctrl+Enter = containing folder.
+- **Web**: last row "Search the web for “q”" (DuckDuckGo via xdg-open); `?query` shows only that row.
+- Bugs hit: QML's JS has no `String.prototype.trimStart`; and reading the `fileSearch` binding inside `onQueryChanged` saw its stale value — computed from `query` directly instead.
+
+## Round 2, Phase E — Night Shift + Reduce motion (2026-09-27)
+
+- **Reduce motion** (Settings → Display; `settingsStore.reduceMotion` → `Binding` onto the new writable `Theme.reduceMotion`): `FadeBehavior` becomes a plain 120 ms fade without the entry delay, `ScaleBehavior` duration 0, the notch spring becomes stiff + critically damped (no overshoot), overview panel slides and the workspace-pill stretch are instant, WeatherBackdrop ambient loops stop.
+- **Night Shift** — `NightLight.qml` runs `hyprsunset -t <K>` (argv) while it should be on and SIGTERMs it otherwise (hyprsunset restores gamma on exit); schedule "Sunset to Sunrise" (today's sunset/sunrise from WeatherMonitor, 20:00–07:00 fallback, re-checked every minute) or "Always"; warmth slider 6000 K → 2500 K (debounced restart). `available` = `command -v hyprsunset`; Settings shows the install command when missing. Settings keys `nightLight`, `nightLightTemp` (4000), `nightLightSchedule`.
+- Settings → Weather: **Rain alert** toggle (`rainAlert`).
+
+## Round 2, Phase F — system monitor (2026-09-27)
+
+`SystemMonitor.qml` (polls only while the panel is open): one fixed `sh -c` script per second dumps /proc/stat, /proc/meminfo, /proc/net/dev, the default-route interface and every hwmon's name/temp1/fan1 → CPU total + per-thread usage from deltas, memory/swap, coretemp CPU + nvme SSD temps, thinkpad fan rpm, down/up rates on the primary interface; `top -b -n 2 -d 0.5` (LC_ALL=C — the locale prints "15,4") every 2 s for current per-process CPU (ps' %CPU is a lifetime average); `df /` every 30 s; 60-sample histories. `SystemPanel.qml` — exclusive type-first state `system` (500×478): CPU / memory / temperature / network tiles with Shape+PathSvg sparklines (network ↓/↑ overlaid, CPU per-thread bars), disk bar, top-5 processes; Esc closes. IPC `system toggle`, SUPER+M.
+
+## Round 2, Phase G — calculator redesign (2026-09-27)
+- `CalculatorPanel.qml` UI rewritten (logic untouched): own header (orange "=" squircle, history + close buttons), 54 px rounded input card with a focus ring, result card with a mode label (Result / Equation / Inequality / Conversion / Error), big right-aligned light result that slides up + fades on change (off with reduce motion), sub line, action chips (Use as ans, Copy, one chip per root for multi-root equations), empty-state example chips.
+- History is a rounded side sheet that slides in from the right, hover-highlighted rows.
+- `CalcGraph.qml`: card styling + hover crosshair with an (x, y) readout pill.
+- Island height now follows the content: `calculatorPanel.naturalHeight` (header + left column) → `QuickOverviewPanel.calcNaturalHeight` → `max(history ? 300 : 0, natural + 28)`.
+- Verified: headless + live log clean, screenshots of the empty state and `x^2-4=0`. Hover crosshair and the history slide are the user's live check.
+
+## Round 2, Phase H — Obsidian "Island" theme (2026-09-27)
+- New theme `~/Documents/Suli/.obsidian/themes/Island/` (manifest + theme.css): SF Pro typography, rounded iOS geometry (cards, pill buttons, round checkboxes, iOS toggles), frosted menus/prompts/modals, rounded tables/callouts/code, accent cursor; dark + light schemes.
+- Colors live between `/* ISLAND-COLORS:BEGIN/END */` and are written by `obsidian_write_theme.py`: `follow <accent>` (accent + slightly accent-tinted iOS surfaces, on-accent text by luminance, white accent → black on the light scheme) or `static` (iOS system blue palette). Vaults found via `~/.config/obsidian/obsidian.json`; only vaults with the Island theme are touched; atomic replace.
+- Hooked into `ThemeProfiles._applyAccentToBorders` (static presets + Dynamic) and a new Settings row "Obsidian follows theme" (`obsidianFollowTheme`, default on).
+- `appearance.json` `cssTheme` → "Island" (backup `appearance.json.bak-island`; ThinkRed is still installed and selectable).
+- Verified: both modes generate valid blocks, bad accent rejected, `theme apply Dynamic` rewrote the block with the live accent, qs logs clean. Look inside Obsidian is the user's live check.
+
+## Round 2 follow-up fixes (2026-09-27)
+- `ToggleSwitch.qml`: the under-damped spring (wobble) + press-stretch fighting it on release → knob defined by eased left/right edges (260 ms OutCubic), stretch toward the travel side, colors on the same curve, pixel-rounded, honors reduce motion.
+- Obsidian static mode now uses Obsidian's default purple `#8b6cef` (hsl 254 80% 68%) instead of iOS blue.
+- Theme panel flash on switching to Dynamic: the preview read `settingsStore.themeAccent` (still the old theme's until matugen's async echo) and, while browsing, `palette[4]` (grey since the monochrome palettes). `ThemeProfiles.dynamicAccent` now caches the wallpaper accent; `applyDynamic()` applies kitty/borders/Obsidian synchronously from it; the preview uses it.
+- Launcher: web row → Google. File rows show real thumbnails (`FileThumb`: images directly; freedesktop cache → `~/.cache/quickshell/thumbs` → generated via ffmpeg cover art / ffmpegthumbnailer / pdftoppm; music falls back to cover.jpg/folder.jpg; else the mime icon). Existence is probed with a positional-arg `sh -c` so Image never logs "Cannot open". Verified in a standalone qs test window (image, mp3 cover, video, PDF, cover-less mp3, txt).
+- Wi-Fi: "Tap" → "Click"; the QR card opened at 240 px and then shrank to its integer-module size (the jump) → sized for 33 modules before the matrix arrives, size animation only for the enlarge toggle.
+- Balanced stutter: root cause = CachyOS ananicy-cpp rule `{ "name": "qs", "type": "Service" }` → the island ran at nice 10 (plus TLP Balanced on battery = EPP `balance_power`). `system/install.sh` (user runs with sudo) installs an ananicy override (Doc-View, nice -4) and a TLP drop-in (`CPU_ENERGY_PERF_POLICY_ON_BAT=balance_performance`, `INTEL_GPU_MIN_FREQ_ON_BAT=450`).
+
+- QR "choppy" appearance (recorded at 60 fps): the card showed as an empty white square for a frame, then the code popped in → the card stays hidden until the code (or an error) exists, then fades + scales in; slot size stays fixed. New IPC `wifi share` (opens the share sheet) for testing.
+- TLP drop-in fixed: Intel GPU MIN/MAX/BOOST must be set together (TLP rejected MIN alone). Profiles are now clearly distinct: Performance = EPP `performance` + iGPU ≥ 600 MHz, Balanced = `balance_performance` + ≥ 450 MHz, Power Saver unchanged (`power`).
+
+- Launcher: typing a web address (`youtube.com`, `reddit.com/r/linux`, `https://…`, `localhost:3000`, IPs) puts "Open …" first (Enter opens the site, with its favicon via Google's s2 service); file names like `notes.txt` / `README.md` are excluded (node-tested).
+- Wi-Fi share sheet now reveals smoothly: the wrapper's height animates (340 ms OutCubic, clipped) + fade, the QR card fades/scales in (0.9 → 1, OutQuint). Verified with a 60 fps recording.
+
+## Polish round (2026-09-27)
+- Launcher web row: plain white `system-search-symbolic` (22 px, flat mask), no blue tile.
+- Wi-Fi share sheet closing: `closeShare()` only collapses; the content is cleared 380 ms later (`shareClearTimer`), so nothing resizes/changes text mid-collapse; close = 260 ms InCubic + 180 ms fade. `wifi share` IPC now toggles. Verified with 60 fps recordings (QR recordings deleted).
+- Calculator: removed the orange "=" icon and the example chips; new "?" header button (also `?` on an empty line / Ctrl+/, Esc closes) opens a help sheet with sections (Math, Equations, Currency, Units, Dates) and clickable examples — every example verified on the live calculator. Typing closes the help. IPC `calculator help`.
+- Privacy badges: `MicShape.qml` / `VideoShape.qml` (SF `mic.fill` / `video.fill`, vector like BoltShape) replace Adwaita's thin outline icons (`IndicatorBadge.shape`).
+- Screen recording settings (Settings → SCREEN RECORDING): resolution (native/1080p/720p/480p → `-s`), 30/60 fps, quality preset (`-q`), system audio / microphone (merged `-a "default_output|default_input"`), cursor. `ActivityStore.recorderArgs()`. Verified: IPC recording → 1920x1080@60 + audio; 720p/30/no-audio args → 1280x720@30, no audio stream. Test files deleted.
+- Mic badge false positive while recording: gpu-screen-recorder's system-audio capture ("gsr-default_output", sink monitor) counted as a mic → excluded in MicMonitor's PipeWire check (the pactl check still catches a real mic).
+
+- Opening a sub-view directly (SUPER+I, IPC) no longer slides it in from the right: `QuickOverviewPanel.slideEnabled` (armed 60 ms after the panel opens) gates every push/pop Translate Behavior, so only in-panel navigation slides. Verified with a 60 fps recording.
+
+- Settings segment highlights (recording resolution/fps/quality, Night Shift schedule, now-playing mode) slid on open because their x is a fraction of the width while the island grows → the x Behaviors are enabled only for 450 ms after a segment click (`panel.segAnim`).
+- **Low battery alerts** (`LowBatteryView.qml`, displayState "lowbattery", below "charging"): fire once per threshold as the level drops on battery — 20 % "Low Battery" (yellow, remaining time, Low Power Mode toggle, 7 s), 10 % "Battery Low" (orange, switches to Low Power if auto Low Power is on, 9 s), 5 % "Battery Critical" (red, pulsing glyph + red rim, Dim Display to step 6/20, stays), 1 % "Almost Empty" (faster pulse, Sleep Now = lock + suspend, stays). Warning/error chime. Plugging in resets and closes it; startup never fires. The idle pill shows a red battery + % chip at ≤ 10 % on battery (tap re-shows the alert). IPC `battery lowTest <20|10|5|1>` (quiet preview) / `battery lowDismiss`.
+
+- Auto Low Power fix: a manual profile change below 20 % on battery (`setProfile`) was undone by the next percentage tick → `_lowPowerUserOverride` keeps the user's choice until the charger is plugged in. The 10 % alert nudges once via `forceLowPower()` (restored on plug-in like the 20 % switch). The 20 % alert says "Low Power on" when auto Low Power already switched.
+
+## Debug pass + README rewrite (2026-09-27)
+- Opened every state via IPC with the live log attached: one warning — `IndicatorBadge` requested an empty icon name when drawing a shape (fixed: no source when `icon` is empty). The weather-preview test IPC leaves a preview active → reset with `weather preview -1`.
+- Static sweeps clean: every masked MultiEffect has thresholds; `colorization` only in comments; `Math.random()` only in constant/animation values; no debug leftovers. `ScreenshotMonitor` no longer splices $HOME into an `sh -c` string (positional arg).
+- node: CalcSmart / CalendarParse / ThemePalette pass; all Python writers compile; all JSON valid; every `qs ipc call` in keybindings.lua exists.
+- Idle CPU while charging was 7–15 %: the idle bolt's shine sweep re-rendered its layered mask every 2 s → sweep every ~5.6 s (and off with reduce motion): 3.6 % average.
+- README rewritten: "What makes it different", fun facts, a full installation walkthrough (packages, fonts, autostart, keybinds, services, CachyOS tweaks, extras, verification, troubleshooting), complete IPC table, data files. The Obsidian theme is now also shipped in `obsidian/Island/`.
+
+- Battery panel is monochrome (level, charge-rate value and Power Saver segment are white; only the "tlp-pd not running" error stays red). Settings header lost "Saved automatically". Calculator: 22 px title like the other headers, placeholder "Challenge me…", and the input re-takes keyboard focus every time the calculator becomes visible (`CalculatorPanel.active`) — another sub-view such as Settings used to keep the focus.
+
+- Battery panel glyph: the ⚡ emoji became a two-tone `BoltShape` split at the fill edge (black over the white fill, white over the empty part); verified at 15/45/60 % in a test window. Calculator input focus ring is white instead of orange.
+
 ## Open decisions / notes
 
 - The plan file's original "Quick Overview Panel" description called for a separate floating panel — superseded by live feedback: the island itself grows, the same way it does for `mediaExpanded`.
