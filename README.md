@@ -11,6 +11,7 @@ whole desktop are generated from the wallpaper with [matugen](https://github.com
 | [`hypr/`](hypr) | Hyprland config written in Lua (`hyprland.lua` + `config/*.lua`), hyprpaper |
 | [`quickshell/`](quickshell) | The Dynamic Island shell: media, notifications, OSDs, launcher, Wi-Fi/Bluetooth, weather, calendar, clipboard, lock screen. See its [README](quickshell/README.md) |
 | [`quickshell/sddm/`](quickshell/sddm) | Matching "Island" SDDM login theme |
+| [`quickshell/obsidian/`](quickshell/obsidian) | Obsidian themes: `Island` (recolored from the wallpaper) and `ThinkRed`. Copy into `<vault>/.obsidian/themes/` |
 | [`matugen/`](matugen) | Wallpaper-based color generation |
 | [`kitty/`](kitty) | Terminal |
 | [`fish/`](fish) | Shell |
