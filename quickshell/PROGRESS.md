@@ -1072,6 +1072,8 @@ Verified: 2-minute timer chip + panel screenshots, record without the package �
 
 - Battery panel glyph: the ⚡ emoji became a two-tone `BoltShape` split at the fill edge (black over the white fill, white over the empty part); verified at 15/45/60 % in a test window. Calculator input focus ring is white instead of orange.
 
+- LocalSend incoming prompt redesigned AirDrop-style: sender avatar (phone/computer glyph from the sender's `deviceType`, now forwarded by `localsend_server.py`), name + "wants to share a file / N files", a file card with the mime icon, name (middle-elided) and total size, then Decline (translucent) / Accept (white) pills; 360×172. Verified by POSTing a test `prepare-upload` to the local server (single mobile file, two desktop files).
+
 ## Open decisions / notes
 
 - The plan file's original "Quick Overview Panel" description called for a separate floating panel — superseded by live feedback: the island itself grows, the same way it does for `mediaExpanded`.
