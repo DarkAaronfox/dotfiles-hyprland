@@ -1076,6 +1076,8 @@ Verified: 2-minute timer chip + panel screenshots, record without the package �
 
 - Notifications reworked: `NotificationStore.appIconFor()` resolves the sender's icon (CachyOS updater → `/usr/share/icons/cachyos.svg`, else the desktop entry by id / heuristic name), stored per entry as `appIcon`. `_iconFor()` now understands Quickshell's `image://icon/<name or /abs/path>` form (pictures were silently dropped) and drops theme names the theme doesn't have (CachyOS's "system-reboot" rendered as the missing-icon checkerboard). Banner: app icon left, title + "now", 2 body lines, picture thumbnail right; 380 × 86/66. History: app icon + name in each group header, cards lighten on hover (they used to turn darker), ✕ fades in inside the card where the time was, picture thumbnails. Verified with test notifications (CachyOS, kitty, an image) — test entries removed from notifications.json afterwards.
 
+- Notification thumbnails: only real pictures — `NotificationStore.pictureFor()` (image hint, or an icon *path* outside icons/, pixmaps/, logo/). kitty sends its logo as an icon path, which used to show up as a "picture" next to its own app icon. Entries store `picture`; banner and history both use it.
+
 ## Open decisions / notes
 
 - The plan file's original "Quick Overview Panel" description called for a separate floating panel — superseded by live feedback: the island itself grows, the same way it does for `mediaExpanded`.
