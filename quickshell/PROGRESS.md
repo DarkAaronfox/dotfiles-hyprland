@@ -1074,6 +1074,8 @@ Verified: 2-minute timer chip + panel screenshots, record without the package �
 
 - LocalSend incoming prompt redesigned AirDrop-style: sender avatar (phone/computer glyph from the sender's `deviceType`, now forwarded by `localsend_server.py`), name + "wants to share a file / N files", a file card with the mime icon, name (middle-elided) and total size, then Decline (translucent) / Accept (white) pills; 360×172. Verified by POSTing a test `prepare-upload` to the local server (single mobile file, two desktop files).
 
+- Notifications reworked: `NotificationStore.appIconFor()` resolves the sender's icon (CachyOS updater → `/usr/share/icons/cachyos.svg`, else the desktop entry by id / heuristic name), stored per entry as `appIcon`. `_iconFor()` now understands Quickshell's `image://icon/<name or /abs/path>` form (pictures were silently dropped) and drops theme names the theme doesn't have (CachyOS's "system-reboot" rendered as the missing-icon checkerboard). Banner: app icon left, title + "now", 2 body lines, picture thumbnail right; 380 × 86/66. History: app icon + name in each group header, cards lighten on hover (they used to turn darker), ✕ fades in inside the card where the time was, picture thumbnails. Verified with test notifications (CachyOS, kitty, an image) — test entries removed from notifications.json afterwards.
+
 ## Open decisions / notes
 
 - The plan file's original "Quick Overview Panel" description called for a separate floating panel — superseded by live feedback: the island itself grows, the same way it does for `mediaExpanded`.

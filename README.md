@@ -113,7 +113,7 @@ Hyprland, terminal and theming configs it works with are next to it (see
 | **Weather** | Open-Meteo: animated sky backdrop, 24-hour temperature curve, 7-day range bars, feels-like / humidity / wind / UV / sunrise-sunset / pressure tiles, rain alert. |
 | **Calculator** | Opens ready to type ("Challenge me…"). Input and result cards, animated result, chips (Copy, Use as ans, one per root). **Equations & inequalities** with a graph (hover crosshair with x/y readout). Currency, units, dates. History side sheet (Ctrl+H). **Help sheet** (`?`) with clickable examples. |
 | **Launcher** | Fuzzy app search (most-launched first), starred favorites as tiles. **Files** with real thumbnails (Ctrl+Enter opens the folder). **Emoji** (`:fire`, Enter copies). **Google search** (`?query`). Web addresses (`youtube.com`) open directly. Commands (`timer 5m`, `stopwatch`, `pomodoro`, `record`). Inline math. |
-| **Notifications** | Last 100 notifications (survive restarts), grouped by app, relative times, click to activate, ✕ / swipe to dismiss, clear per app / all. |
+| **Notifications** | iOS-style banners: the app's own icon top-left (CachyOS updates get the CachyOS logo), title + time, two lines of body, and the picture (album art, screenshot…) as a thumbnail. History (SUPER+N): last 100 (survive restarts), grouped by app with its icon, relative times, click to activate, ✕ on hover / swipe to dismiss, clear per app / all. |
 | **System** | CPU (total + per-core), memory, temperature + fan, network ↓/↑ with 60-second sparklines, disk, top processes. |
 | **Clipboard** | cliphist history with image thumbnails. |
 | **Calendar** | Month grid + reminders with natural-language quick-add ("tomorrow 9:00 dentist"). |
