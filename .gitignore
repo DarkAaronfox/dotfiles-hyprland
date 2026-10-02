@@ -12,6 +12,7 @@
 !/matugen/
 !/micro/
 !/mpv/
+!/mpd/
 !/gtk-3.0/
 !/gtk-4.0/
 !/qt6ct/
@@ -29,3 +30,6 @@ micro/buffers/
 quickshell/sddm/*/fonts/
 quickshell/notifications.json
 quickshell/activity.json
+# uosc is third-party (reinstall from upstream, ships ~17 MB of binaries)
+mpv/scripts/uosc/
+mpv/fonts/

@@ -227,6 +227,9 @@ To undo it, follow the instructions at the top of the script.
      finds vaults through `~/.config/obsidian/obsidian.json`.
   4. `quickshell/obsidian/ThinkRed/` is a second, static theme (black-grey with ThinkPad TrackPoint red).
 - **Spotify:** plain spicetify + Marketplace; the island doesn't theme it.
+- **Media apps:** `sudo pacman -S mpv mpd rmpc swayimg && systemctl --user enable --now mpd`.
+  The uosc UI for mpv isn't in the repo; install it with
+  `curl -fsSL https://github.com/tomasklaen/uosc/releases/latest/download/uosc.zip -o /tmp/uosc.zip && unzip -o /tmp/uosc.zip -d ~/.config/mpv`.
 
 ### 9. Check that it works
 ```bash
@@ -377,6 +380,7 @@ Everything outside `quickshell/`. Copy whichever folders you want into `~/.confi
 | [`gtk-3.0/`](gtk-3.0), [`gtk-4.0/`](gtk-4.0), [`qt6ct/`](qt6ct), [`nwg-look/`](nwg-look), [`kdeglobals`](kdeglobals) | GTK / Qt theming |
 | [`cava/`](cava) | Audio visualizer (also drives the island's bars) |
 | [`btop/`](btop), [`micro/`](micro), [`spicetify/`](spicetify) | btop, micro editor, Spotify theming |
+| [`mpv/`](mpv), [`mpd/`](mpd) | Video player (uosc + thumbfast) and music daemon for `rmpc` |
 | [`autostart/`](autostart), [`systemd/`](systemd), [`mimeapps.list`](mimeapps.list) | Autostart entries, user services, default apps |
 
 ## Credits
