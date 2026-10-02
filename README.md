@@ -120,6 +120,7 @@ Hyprland, terminal and theming configs it works with are next to it (see
 | **Theme** | macOS-Appearance-style picker with a live preview (wallpaper, mini island, mini terminal), presets + *Dynamic* (matugen from the wallpaper). |
 | **Wallpaper** | Keyboard-navigable grid, applies via hyprpaper. |
 | **Settings** | iOS-style grouped list. Appearance: Liquid Glass, strip mode. Display: Night Shift via hyprsunset (sunset→sunrise or always, warmth slider), Reduce motion, Obsidian follows theme. **Screen recording**: resolution, fps, quality, system audio, microphone, cursor. Also now-playing mode, Do Not Disturb, privacy indicators, calculator history, weather. |
+| **Tray** | System-tray host (StatusNotifierItem) for Discord, Steam etc.: a 2×2-dot badge next to the pill while any app sits in the tray; icon grid, click opens the app, right click shows its own menu. **SUPER+A** (`qs ipc call tray toggle`). |
 | **Shortcuts** | Live cheat sheet generated from `keybindings.lua`. |
 | **Power menu** | Lock · Sleep · Log Out · Restart · Shut Down; hold 1–5 (or press-and-hold a button). |
 
@@ -261,6 +262,7 @@ qs ipc call calculator help              # calculator with its help sheet
 | `SUPER + W` | Weather |
 | `SUPER + B` | Battery |
 | `SUPER + K` | Calendar |
+| `SUPER + A` | Tray apps (Discord, Steam…) |
 | `SUPER + SHIFT + V` | Clipboard |
 | `SUPER + I` | Settings |
 | `SUPER + SHIFT + T` | Theme |

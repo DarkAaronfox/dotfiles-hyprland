@@ -28,6 +28,7 @@ hl.bind(mainMod .. " + R", hl.dsp.exec_cmd("qs ipc call activity record"))
 hl.bind(mainMod .. " + M", hl.dsp.exec_cmd("qs ipc call system toggle"))
 hl.bind(mainMod .. " + SHIFT + V", hl.dsp.exec_cmd("qs ipc call clipboard toggle"))
 hl.bind(mainMod .. " + K", hl.dsp.exec_cmd("qs ipc call calendar toggle"))
+hl.bind(mainMod .. " + A", hl.dsp.exec_cmd("qs ipc call tray toggle"))
 
 
 -- Example binds, see https://wiki.hypr.land/Configuring/Basics/Binds/ for more
