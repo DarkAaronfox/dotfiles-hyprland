@@ -1080,6 +1080,10 @@ Verified: 2-minute timer chip + panel screenshots, record without the package �
 
 - Strip mode is now a plain black bar as wide as the idle island (was a 60 px notch with a small white line); height 14 px, hover still expands it.
 
+- Clipboard category chips: hover faded between the opaque card grey and a translucent white (dark flash mid-animation) → opaque colors only (card → cardElevated, selected white → #e6e6e6), 120 ms, plus a press scale.
+
+- Live-log fixes: `MediaControls` seek-bar `sync()` got a re-entrancy guard (forcing `positionChanged()` could re-trigger the player's isPlaying/length/track handlers → "RangeError: Maximum call stack size exceeded", 6× in one session); the screenshot preview retries up to 6× / 250 ms when it catches the file mid-write ("Unable to read image data").
+
 ## Open decisions / notes
 
 - The plan file's original "Quick Overview Panel" description called for a separate floating panel — superseded by live feedback: the island itself grows, the same way it does for `mediaExpanded`.
