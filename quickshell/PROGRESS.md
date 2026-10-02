@@ -1088,6 +1088,12 @@ Verified: 2-minute timer chip + panel screenshots, record without the package �
 
 - LocalSend: dropping a browser link onto the island treated the URL as a file path (shown as "watch?v=…", send failed: file not found). Links and plain text are now sent as LocalSend text messages: `localsend_send.py "text:<payload>" …` sends a text/plain entry with `preview` (204 = shown as a message; otherwise uploaded as .txt). The island shows "Link · youtube.com" + the middle-elided URL. Tested both receiver paths and a normal file against a local fake receiver.
 
+## System tray (2026-10-02)
+
+- `TrayPanel.qml` (overview sub-view `tray`, width 400, height from `trayNaturalHeight`) hosts StatusNotifierItems via `Quickshell.Services.SystemTray` — qs now owns `org.kde.StatusNotifierWatcher` on Hyprland (nothing did before, so apps like Discord that minimize to the tray just vanished). Left click `activate()` + close (menu for `onlyMenu` items), right click opens the app's menu drawn inside the island (`QsMenuOpener`, submenus via a back row; SUPER+A → `qs ipc call tray toggle`; `item.display()` platform menus failed — they require QApplication mode), middle click `secondaryActivate()`, wheel `scroll()`. Tray icons stay in their own colors (app icons, not symbolic).
+- `trayBadge` (2×2 dot glyph) in `idleBadgeRight`, visible while `SystemTray.items` is non-empty; click opens the tray view. With Liquid Glass it gets the notch's frosted rim fading into a black core.
+- Discord keeps its default minimize-to-tray (its settings.json is shared with the KDE session).
+
 ## Open decisions / notes
 
 - The plan file's original "Quick Overview Panel" description called for a separate floating panel — superseded by live feedback: the island itself grows, the same way it does for `mediaExpanded`.
