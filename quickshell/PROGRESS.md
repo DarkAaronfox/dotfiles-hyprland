@@ -1110,6 +1110,8 @@ Verified: 2-minute timer chip + panel screenshots, record without the package �
 
 - Opening the island during playback stuttered. The media card's content (`mediaAmbient`, `mediaViz`, `mediaExpandedContent`) used `anchors.fill: parent` on the morphing notch, so every animation frame re-wrapped every lyric line (ListView, `cacheBuffer: 5000`), re-ran `glideToCurrent()` via `onHeightChanged`, and re-blurred the cover and the live lyrics texture. Now laid out at the fixed final size (`island.mediaCardWidth`/`mediaCardHeight`, also used by notch's target size switch) and clipped by notch while it morphs.
 - Measured with `QSG_RENDER_TIMING=1` (8 open/close toggles via `qs ipc call overview toggle`): GUI-thread `animations=` max 21–32 ms / p99 13–16 ms before → max 10–12 ms / p99 9 ms after. Disabling cava made no difference, so it wasn't the cause.
+- Follow-up: the cava bars' `Behavior on height` (80/90 ms per 30 Hz update) kept the island repainting at ~60 fps for the whole song, each frame recomposited by Hyprland. Removed (cava's noise_reduction already smooths). Silent mpv test player on a null sink: idle-pill 37 → 12 fps, qs CPU 12 → 7 %; with cava off it's 0 fps. Remaining stutter is compositor-side (Hyprland debug overlay: render avg 7.8 ms, spikes ~25 ms) while Brave software-decodes YouTube (~120 % CPU).
+- Screen-share badge glyph smaller: `IndicatorBadge.iconRatio` (default 16/28), 0.42 for the share badge.
 
 ## Open decisions / notes
 
