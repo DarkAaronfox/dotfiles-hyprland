@@ -1106,6 +1106,11 @@ Verified: 2-minute timer chip + panel screenshots, record without the package �
 - `MprisMonitor`: a Brave tab is two MPRIS players (Brave's own, no artUrl; Plasma Browser Integration's, cover in /tmp). `_pick()` prefers the one with art. Idle art slot falls back to the app's icon (`DesktopEntries.heuristicLookup`) when there is no cover at all.
 - `CavaMonitor` captures only the playing app's output stream (`source = <node.name>`, matched via `MprisMonitor.appKeys()` against the first word of each `AudioOutStream` node name) instead of the sink monitor — a Discord call's voices showed in the bars and loud speech pushed autosens down. Unmatched app → `auto`. Named targets run with `PIPEWIRE_PROPS` `node.dont-fallback/dont-reconnect/dont-move`, otherwise WirePlumber would move cava to the default source (mic) when the stream disappears; cava restarts on target change (name + node id). Verified with a null-sink test tone and live by the user during a Discord call.
 
+## Media card open lag (2026-10-03)
+
+- Opening the island during playback stuttered. The media card's content (`mediaAmbient`, `mediaViz`, `mediaExpandedContent`) used `anchors.fill: parent` on the morphing notch, so every animation frame re-wrapped every lyric line (ListView, `cacheBuffer: 5000`), re-ran `glideToCurrent()` via `onHeightChanged`, and re-blurred the cover and the live lyrics texture. Now laid out at the fixed final size (`island.mediaCardWidth`/`mediaCardHeight`, also used by notch's target size switch) and clipped by notch while it morphs.
+- Measured with `QSG_RENDER_TIMING=1` (8 open/close toggles via `qs ipc call overview toggle`): GUI-thread `animations=` max 21–32 ms / p99 13–16 ms before → max 10–12 ms / p99 9 ms after. Disabling cava made no difference, so it wasn't the cause.
+
 ## Open decisions / notes
 
 - The plan file's original "Quick Overview Panel" description called for a separate floating panel — superseded by live feedback: the island itself grows, the same way it does for `mediaExpanded`.
