@@ -1094,6 +1094,13 @@ Verified: 2-minute timer chip + panel screenshots, record without the package �
 - `trayBadge` (2×2 dot glyph) in `idleBadgeRight`, visible while `SystemTray.items` is non-empty; click opens the tray view. With Liquid Glass it gets the notch's frosted rim fading into a black core.
 - Discord keeps its default minimize-to-tray (its settings.json is shared with the KDE session).
 
+## Recording / screen-share badges, icon reload (2026-10-03)
+
+- `IconCacheMonitor.qml` polls `/usr/share/icons/hicolor/icon-theme.cache` mtime (5 s) and runs `reload.sh` detached (3 s settle) — Quickshell caches icon lookups per process, so apps installed after startup showed a fallback icon. `reload.sh` (was empty) kills `qs` and relaunches it through `hyprctl eval`.
+- Screen recording moved out of `LiveActivityChip` into `RecordingBadge.qml` (glass capsule: pulsing dot + elapsed, click → activity view), in `idleBadgeLeft` next to the pill (user wanted it outside, on the left).
+- Floating badges no longer touch the screen's top edge: `island.idleBadgeGap` (3) from the top, `island.idleBadgeSize` = pill height − gap (37), so their bottom lines up with the pill's. Fully centered 32 px read as too small; 38 px hung 1 px below the pill and looked off.
+- `ScreenShareMonitor.qml`: portal screencast = a PipeWire `VideoSource` node named `xdg-desktop-portal-hyprland` (xdph 1.4, verified with a live Discord share; older xdph: `xdph-streaming-<n>`). Blue `screen-shared-symbolic` badge in `idleBadgeLeft`. `IndicatorBadge` got an optional `glassRim`.
+
 ## Open decisions / notes
 
 - The plan file's original "Quick Overview Panel" description called for a separate floating panel — superseded by live feedback: the island itself grows, the same way it does for `mediaExpanded`.

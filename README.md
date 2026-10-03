@@ -33,8 +33,9 @@ Hyprland, terminal and theming configs it works with are next to it (see
   - VS Code, KDE globals and Hyprland borders;
   - the island's accent;
   - a custom **Obsidian theme**, which follows the accent or stays Obsidian purple.
-- **Live activities, like iOS.** Screen recording, timers, pomodoro, "rain in 15 min" and low battery
-  live in the idle pill next to the clock. Tap one for its controls.
+- **Live activities, like iOS.** Timers, pomodoro, "rain in 15 min" and low battery live in the
+  idle pill next to the clock; screen recording gets its own floating capsule beside the pill. Tap
+  one for its controls.
 - **A calculator that thinks.**
   - It solves linear, quadratic, quartic and trig equations and inequalities in `x`, and graphs them
     with the roots and the shaded solution set.
@@ -42,7 +43,8 @@ Hyprland, terminal and theming configs it works with are next to it (see
   - It uses a hand-written recursive-descent parser. There is no `eval`, so there is no injection
     surface.
 - **Honest privacy badges.** The mic/camera indicators ignore the island's own cava visualizer and
-  the screen recorder's system-audio tap, so they only light up for a real microphone.
+  the screen recorder's system-audio tap, so they only light up for a real microphone. A blue badge
+  shows while an app (Discord, a browser, OBS) is screen sharing through the portal.
 - **Escalating low-battery care.**
   - **20 %** — remaining time, and automatic Low Power.
   - **10 %** — a Low Power nudge.
@@ -82,7 +84,8 @@ Hyprland, terminal and theming configs it works with are next to it (see
 
 ### The island
 - **Idle pill** — clock, now-playing (album art, title or a live lyrics line), cava bars in the
-  album cover's color, mic/camera privacy badges, charging bolt, unread-notification dot.
+  album cover's color, unread-notification dot. Floating badges beside it (inset from the screen
+  edge): charging bolt, screen recording, screen sharing on the left; tray, mic/camera on the right.
   Optional thin **strip mode**.
 - **Two looks:**
   - solid black;
@@ -91,8 +94,8 @@ Hyprland, terminal and theming configs it works with are next to it (see
     a neutral tint.
 - **Transient OSDs** — volume, brightness, Caps Lock, mic mute, screenshot preview, LocalSend
   transfers, notifications.
-- **Live activities** — at the left of the pill:
-  - screen recording (pulsing red dot + elapsed time);
+- **Live activities** — screen recording (pulsing red dot + elapsed time) as a capsule left of
+  the pill; inside the pill, at its left:
   - timer / stopwatch / pomodoro (progress ring + time);
   - low battery (≤ 10 %);
   - "rain soon" (Open-Meteo 15-minute data).
