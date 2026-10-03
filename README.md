@@ -117,7 +117,7 @@ Hyprland, terminal and theming configs it works with are next to it (see
 | **Overview** | Clock, Wi-Fi/Ethernet, Bluetooth, battery, Liquid Glass toggle, shortcuts to every panel. |
 | **Battery** | Monochrome, with a two-tone charging bolt (black over the fill, white over the empty part). Per-pack level, health and cycle count straight from sysfs, capacity vs. design. *Charging at* = watts going into the battery right now (vs. the USB-C charger's rating); *Using* = the drain on battery. Power profiles via tlp-pd; automatic Low Power at ≤ 20 % (a manual change is respected until you plug in again). |
 | **Wi-Fi / Bluetooth** | Device cards, password entry, details, forget/disconnect, pairing; **share the Wi-Fi password as a QR code** (click to enlarge). |
-| **Weather** | Open-Meteo: animated sky backdrop, 24-hour temperature curve, 7-day range bars, feels-like / humidity / wind / UV / sunrise-sunset / pressure tiles, rain alert. |
+| **Weather** | Open-Meteo: animated sky backdrop, 24-hour temperature curve, 7-day range bars, feels-like / humidity / wind / UV / sunrise-sunset / pressure tiles, rain alert. **Location by Wi-Fi** (`wifi_locate.py`): nearby access points are looked up via Apple's Wi-Fi positioning service (BeaconDB fallback) and named via OpenStreetMap, accurate to ~20 m, anywhere. Falls back to IP geolocation (city-level at best) when Wi-Fi is off; a manual city can be set in Settings. Re-resolved every 30 min. Note: the nearby access points' MAC addresses are sent to Apple. |
 | **Calculator** | Opens ready to type ("Challenge me…"). Input and result cards, animated result, chips (Copy, Use as ans, one per root). **Equations & inequalities** with a graph (hover crosshair with x/y readout). Currency, units, dates. History side sheet (Ctrl+H). **Help sheet** (`?`) with clickable examples. |
 | **Launcher** | Fuzzy app search (most-launched first), starred favorites as tiles. **Files** with real thumbnails (Ctrl+Enter opens the folder). **Emoji** (`:fire`, Enter copies). **Google search** (`?query`). Web addresses (`youtube.com`) open directly. Commands (`timer 5m`, `stopwatch`, `pomodoro`, `record`). Inline math. |
 | **Notifications** | iOS-style banners: the app's own icon top-left (CachyOS updates get the CachyOS logo), title + time, two lines of body, and the picture (album art, screenshot…) as a thumbnail. History (SUPER+N): last 100 (survive restarts), grouped by app with its icon, relative times, click to activate, ✕ on hover / swipe to dismiss, clear per app / all. |
@@ -348,7 +348,8 @@ File names below are in [`quickshell/`](quickshell).
   `ScaleBehavior`.
 - **Monitors** (`*Monitor.qml`, `*Store.qml`) wrap one data source each and are declared early in
   `DynamicIsland.qml`. The sources are MPRIS, PipeWire, UPower/sysfs, NetworkManager, BlueZ, cava,
-  weather, clipboard, notifications, activities and LocalSend.
+  weather (Wi-Fi location via `wifi_locate.py`, IP fallback), clipboard, notifications, activities
+  and LocalSend.
 - **Panels** (`*Panel.qml`) live in `QuickOverviewPanel.qml` (push/pop sub-views) or directly in the
   island (launcher, power, clipboard, notifications, system, activity).
 - **Shared pieces:** `Theme.qml` (design tokens, reduce motion), `PanelHeader.qml`,
