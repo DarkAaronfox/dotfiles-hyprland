@@ -33,9 +33,9 @@ Hyprland, terminal and theming configs it works with are next to it (see
   - VS Code, KDE globals and Hyprland borders;
   - the island's accent;
   - a custom **Obsidian theme**, which follows the accent or stays Obsidian purple.
-- **Live activities, like iOS.** Timers, pomodoro, "rain in 15 min" and low battery live in the
-  idle pill next to the clock; screen recording gets its own floating capsule beside the pill. Tap
-  one for its controls.
+- **Live activities, like iOS.** Timers, pomodoro and "rain in 15 min" live in the idle pill next
+  to the clock; screen recording and the battery get their own floating capsules beside the pill.
+  Tap one for its controls.
 - **A calculator that thinks.**
   - It solves linear, quadratic, quartic and trig equations and inequalities in `x`, and graphs them
     with the roots and the shaded solution set.
@@ -46,7 +46,8 @@ Hyprland, terminal and theming configs it works with are next to it (see
   the screen recorder's system-audio tap, so they only light up for a real microphone. A blue badge
   shows while an app (Discord, a browser, OBS) is screen sharing through the portal.
 - **Escalating low-battery care.**
-  - **20 %** — remaining time, and automatic Low Power.
+  - **≤ 10 %** — the battery badge left of the pill always shows, with the minutes left.
+  - **20 %** — remaining time, and automatic Low Power (which also dims the display a little).
   - **10 %** — a Low Power nudge.
   - **5 %** — a pulsing critical view with *Dim Display*.
   - **1 %** — *Sleep Now*.
@@ -68,7 +69,9 @@ Hyprland, terminal and theming configs it works with are next to it (see
 - **Icons are recolored with an alpha mask, never `colorization`.** Qt's colorize blends in
   proportion to the icon's own luminance, so a dark Adwaita glyph can never become pure white.
 - **Brightness steps along a gamma-2.2 curve** (20 perceptual levels), so the bottom steps aren't
-  stuck and the top ones don't jump.
+  stuck and the top ones don't jump. The T480's brightness keys never report a held key (each event
+  is press + release at once, repeated ~520 ms then every ~260 ms while held), so the island
+  recognises a hold by that cadence and ramps fast itself; taps stay one level each.
 - **Synced lyrics always win.** Plain lyrics are only used when no timestamped version exists
   anywhere. Scrolling is Apple-Music-style, with blurred edges.
 - **CachyOS made the island stutter.** Its default `ananicy-cpp` rules classify `qs` as a background
@@ -85,7 +88,8 @@ Hyprland, terminal and theming configs it works with are next to it (see
 ### The island
 - **Idle pill** — clock, now-playing (album art, title or a live lyrics line), cava bars in the
   album cover's color, unread-notification dot. Floating badges beside it (inset from the screen
-  edge): charging bolt, screen recording, screen sharing on the left; tray, mic/camera on the right.
+  edge): charging bolt or battery level (optional percentage), screen recording on the left; tray,
+  screen sharing, mic/camera on the right.
   Optional thin **strip mode**.
 - **Two looks:**
   - solid black;
@@ -97,11 +101,11 @@ Hyprland, terminal and theming configs it works with are next to it (see
 - **Live activities** — screen recording (pulsing red dot + elapsed time) as a capsule left of
   the pill; inside the pill, at its left:
   - timer / stopwatch / pomodoro (progress ring + time);
-  - low battery (≤ 10 %);
   - "rain soon" (Open-Meteo 15-minute data).
   
   Tap one for its controls.
-- **Charging** — an iPhone-style "charging" view with a liquid battery fill when you plug in.
+- **Charging** — when you plug in, the pill reads "Charging" with the percentage while a green
+  light runs around its outline, ears included.
 - **Low battery** — escalating alerts at 20 / 10 / 5 / 1 % (see above).
 - **Workspaces** — on every switch, dots appear inside the pill and the active one moves with an iOS
   page-control "stretch".
@@ -122,7 +126,7 @@ Hyprland, terminal and theming configs it works with are next to it (see
 | **Calendar** | Month grid + reminders with natural-language quick-add ("tomorrow 9:00 dentist"). |
 | **Theme** | macOS-Appearance-style picker with a live preview (wallpaper, mini island, mini terminal), presets + *Dynamic* (matugen from the wallpaper). |
 | **Wallpaper** | Keyboard-navigable grid, applies via hyprpaper. |
-| **Settings** | iOS-style grouped list. Appearance: Liquid Glass, strip mode. Display: Night Shift via hyprsunset (sunset→sunrise or always, warmth slider), Reduce motion, Obsidian follows theme. **Screen recording**: resolution, fps, quality, system audio, microphone, cursor. Also now-playing mode, Do Not Disturb, privacy indicators, calculator history, weather. |
+| **Settings** | iOS-style grouped list. Appearance: Liquid Glass, strip mode. Display: Night Shift via hyprsunset (sunset→sunrise or always, warmth slider), Reduce motion, Obsidian follows theme. **Screen recording**: resolution, fps, quality, system audio, microphone, cursor. **Battery**: badge outside the pill, percentage. Also now-playing mode, Do Not Disturb, privacy indicators, calculator history, weather. |
 | **Tray** | System-tray host (StatusNotifierItem) for Discord, Steam etc.: a 2×2-dot badge next to the pill while any app sits in the tray; icon grid, click opens the app, right click shows its own menu. **SUPER+A** (`qs ipc call tray toggle`). |
 | **Shortcuts** | Live cheat sheet generated from `keybindings.lua`. |
 | **Power menu** | Lock · Sleep · Log Out · Restart · Shut Down; hold 1–5 (or press-and-hold a button). |
@@ -192,8 +196,8 @@ hl.bind(mainMod .. " + N", hl.dsp.exec_cmd("qs ipc call notifications toggle"))
 hl.bind(mainMod .. " + R", hl.dsp.exec_cmd("qs ipc call activity record"))
 hl.bind(mainMod .. " + M", hl.dsp.exec_cmd("qs ipc call system toggle"))
 hl.bind(mainMod .. " + Escape", hl.dsp.exec_cmd("qs ipc call power toggle"))
-hl.bind("XF86MonBrightnessUp",   hl.dsp.exec_cmd("qs ipc call brightness up"),   { locked = true, repeating = true })
-hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("qs ipc call brightness down"), { locked = true, repeating = true })
+hl.bind("XF86MonBrightnessUp",   hl.dsp.exec_cmd("qs ipc call brightness press up"),   { locked = true })
+hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("qs ipc call brightness press down"), { locked = true })
 -- …the rest follow the table under "Keybindings"
 ```
 
@@ -300,7 +304,7 @@ Everything is scriptable through `qs ipc call <target> <function>`:
 | `lock` | `lock`, `isLocked` |
 | `theme` | `apply <name>` (e.g. `Blue`, `Dynamic`) |
 | `battery` | `chargeTest`, `lowTest <20|10|5|1>`, `lowDismiss` |
-| `brightness` | `up`, `down` |
+| `brightness` | `press <up\|down>` (key event; hold detection), `up`, `down` |
 | `weather` | `preview <code> <day>` (`-1` resets) |
 
 Run `qs ipc show` for the live list.
