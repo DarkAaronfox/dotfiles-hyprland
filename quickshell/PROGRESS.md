@@ -1101,6 +1101,11 @@ Verified: 2-minute timer chip + panel screenshots, record without the package �
 - Floating badges no longer touch the screen's top edge: `island.idleBadgeGap` (3) from the top, `island.idleBadgeSize` = pill height − gap (37), so their bottom lines up with the pill's. Fully centered 32 px read as too small; 38 px hung 1 px below the pill and looked off.
 - `ScreenShareMonitor.qml`: portal screencast = a PipeWire `VideoSource` node named `xdg-desktop-portal-hyprland` (xdph 1.4, verified with a live Discord share; older xdph: `xdph-streaming-<n>`). Blue `screen-shared-symbolic` badge in `idleBadgeLeft`. `IndicatorBadge` got an optional `glassRim`.
 
+## Browser cover art, per-app cava (2026-10-03)
+
+- `MprisMonitor`: a Brave tab is two MPRIS players (Brave's own, no artUrl; Plasma Browser Integration's, cover in /tmp). `_pick()` prefers the one with art. Idle art slot falls back to the app's icon (`DesktopEntries.heuristicLookup`) when there is no cover at all.
+- `CavaMonitor` captures only the playing app's output stream (`source = <node.name>`, matched via `MprisMonitor.appKeys()` against the first word of each `AudioOutStream` node name) instead of the sink monitor — a Discord call's voices showed in the bars and loud speech pushed autosens down. Unmatched app → `auto`. Named targets run with `PIPEWIRE_PROPS` `node.dont-fallback/dont-reconnect/dont-move`, otherwise WirePlumber would move cava to the default source (mic) when the stream disappears; cava restarts on target change (name + node id). Verified with a null-sink test tone and live by the user during a Discord call.
+
 ## Open decisions / notes
 
 - The plan file's original "Quick Overview Panel" description called for a separate floating panel — superseded by live feedback: the island itself grows, the same way it does for `mediaExpanded`.
