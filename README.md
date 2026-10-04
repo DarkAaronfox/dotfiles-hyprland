@@ -112,6 +112,8 @@ Hyprland, terminal and theming configs it works with are next to it (see
   Tap one for its controls.
 - **Charging** — when you plug in, the pill reads "Charging" with the percentage while a green
   light runs around its outline, ears included.
+- **Ethernet** — plugging in a network cable shows a compact pill: the wired glyph, "Ethernet" and
+  the negotiated link speed ("1 Gbps"); pulling it shows "Disconnected".
 - **Low battery** — compact pills at 20 / 10 / 5 / 1 % (see above).
 - **Workspaces** — on every switch, dots appear inside the pill and the active one moves with an iOS
   page-control "stretch".
