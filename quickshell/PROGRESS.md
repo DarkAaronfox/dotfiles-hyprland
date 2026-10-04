@@ -1149,3 +1149,9 @@ IP geolocation was ISP-level: every provider tested (ip-api, ipinfo, ipwho, ipap
 - **Battery badge**: the content is right-aligned with the bolt's inset (`rightInset` 3), so the nub ends where the bolt's tip does. Verified side by side in an isolated render.
 - **Settings**: the category pages were reverted to one list (from 706f37c), now monochrome (IconTile fill `Theme.cardElevated`). `Section` headers fold their group (animated height, `openSections` map on the panel, kept for the session).
 - **Media card**: the ambient blur's MultiEffect auto padding spilled ~64 px below the card, visible as a bright band while the notch's spring overshot. Now `autoPaddingEnabled: false`, `clip: true`, and the height follows `max(card, notch.height)`. Verified by grabbing frames during the open.
+
+## Round 4 (2026-10-04)
+
+- **Workspace dots at the plain pill size**: while `workspaceActive`, `notch.targetWidth` is the [cover] [clock] [cava] width (`artSlot ×2 + idleClock + spacing + 36`) whatever the now-playing mode. A long lyric line used to stretch the dots, and a short one squeezed them. Verified live by switching workspaces with mpv + lyrics.
+- **Battery badge**: the glyph halo is 6 concentric rounded-rect rings fading outward (smooth, no lobes); the text halo is 2 tight rings × 16 directions. New setting `batteryPercentInside` (Settings → Battery → Percentage: Off / Beside / Inside). Inside draws the number in a 36×18 glyph, with a dark copy clipped to the fill over a light one. When low, the minutes stay beside.
+- **Settings in two columns**: the overview's settings width is 400 → 620 and the height 482 → 520. `body` is a RowLayout of two top-aligned columns (appearance/display/now playing/battery | recording/notifications/calculator/weather). The SegRow label column is narrower (62 px) and "Very high" became "V. high" to fit.
