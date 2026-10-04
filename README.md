@@ -90,8 +90,10 @@ Hyprland, terminal and theming configs it works with are next to it (see
   ([cover] [clock] [cava]), *track title* ([cover] [title] [cava]) or *lyrics* (just the current
   synced line, over full-width cava bars in the cover's color; the pill springs to each line's
   width, long lines scroll, ♪ in instrumental gaps). The small cava bars use the album cover's
-  color. Unread-notification dot. Floating badges beside it (inset from the screen edge): charging bolt or battery level (optional percentage), screen recording on the left; tray,
-  screen sharing, mic/camera on the right.
+  color. Unread-notification dot. Floating badges beside it (inset from the screen edge):
+  charging bolt or battery level on the left (no background, with a soft shadow like the bolt;
+  the level fill and color follow the charge, optional percentage), screen recording; tray, screen
+  sharing, mic/camera on the right.
   Optional thin **strip mode**.
 - **Two looks:**
   - solid black;
