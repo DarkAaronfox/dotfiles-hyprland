@@ -176,7 +176,7 @@ the SDDM theme also needs a copy in `quickshell/sddm/island/fonts/`.
 
 ### 3. The shell itself
 ```bash
-git clone https://github.com/DarkAaronfox/dotfiles-hyprland.git ~/dotfiles-hyprland
+git clone https://github.com/aronkv/dotfiles-hyprland.git ~/dotfiles-hyprland
 cp -r ~/dotfiles-hyprland/quickshell ~/.config/   # back up your own ~/.config first
 qs                                                 # first run in a terminal, to see the log
 ```

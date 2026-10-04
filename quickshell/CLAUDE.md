@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-A custom Quickshell (QML-based Wayland shell toolkit) "Dynamic Island" for Hyprland, living entirely in `~/.config/quickshell/`. No build system, no test suite — it's a live-reloaded desktop config. It is part of the `~/.config` git repo (github.com/DarkAaronfox/dotfiles-hyprland, allowlist `.gitignore`). The project README is `~/.config/README.md` (repo root) — update that one; there is deliberately no `quickshell/README.md`. `shell.qml` is the entry point (`ShellRoot { DynamicIsland {} }`), and `DynamicIsland.qml` is the whole state machine.
+A custom Quickshell (QML-based Wayland shell toolkit) "Dynamic Island" for Hyprland, living entirely in `~/.config/quickshell/`. No build system, no test suite — it's a live-reloaded desktop config. It is part of the `~/.config` git repo (github.com/aronkv/dotfiles-hyprland, allowlist `.gitignore`). The project README is `~/.config/README.md` (repo root) — update that one; there is deliberately no `quickshell/README.md`. `shell.qml` is the entry point (`ShellRoot { DynamicIsland {} }`), and `DynamicIsland.qml` is the whole state machine.
 
 ## Running / testing
 
