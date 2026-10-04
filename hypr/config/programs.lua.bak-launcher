@@ -1,5 +1,0 @@
-terminal    = "kitty"
-fileManager = "dolphin"
-menu        = "hyprlauncher"
-editor      = "code"
-browser     = "brave-origin"

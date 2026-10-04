@@ -368,9 +368,6 @@ File names below are in [`quickshell/`](quickshell).
   - `ThemeColorMonitor.qml` (Hyprland borders, island accent);
   - small Python writers for kitty / VS Code / KDE / Obsidian.
 
-See **[`CLAUDE.md`](quickshell/CLAUDE.md)** for the full architecture notes and the list of bug classes already hit (and
-how to avoid them), and **[`PROGRESS.md`](quickshell/PROGRESS.md)** for the detailed change log.
-
 ## Development
 
 There is no build step. Quickshell hot-reloads on save.

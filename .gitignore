@@ -33,3 +33,8 @@ quickshell/activity.json
 # uosc is third-party (reinstall from upstream, ships ~17 MB of binaries)
 mpv/scripts/uosc/
 mpv/fonts/
+
+# Local backup copies
+*.bak
+*.bak-*
+*.bak.*

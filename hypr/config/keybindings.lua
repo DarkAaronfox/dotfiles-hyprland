@@ -80,7 +80,7 @@ hl.bind(mainMod .. " + SHIFT + S", hl.dsp.window.move({ workspace = "special:mag
 -- asking save/copy/annotate; the combo should go straight from selection to
 -- a saved+copied result). Quickshell only shows a brief preview afterward
 -- (ScreenshotMonitor.qml watches this folder) — it doesn't do the capture
--- itself. sh -c is a justified exception here (CLAUDE.md's fuser precedent)
+-- itself. sh -c is a justified exception here (same as the fuser check)
 -- since a real shell pipe is needed and nothing in the command is
 -- dynamic/untrusted user input.
 -- Dropped satty entirely: hyprshot's own real behavior (confirmed by
