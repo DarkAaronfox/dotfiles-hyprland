@@ -92,7 +92,8 @@ Hyprland, terminal and theming configs it works with are next to it (see
   width, long lines scroll, ♪ in instrumental gaps). The small cava bars use the album cover's
   color. Unread-notification dot. Floating badges beside it (inset from the screen edge):
   charging bolt or battery level on the left (no background, with a soft shadow like the bolt;
-  the level fill and color follow the charge, optional percentage), screen recording; tray, screen
+  the level fill and color follow the charge; the percentage can be off, beside the glyph or
+  inside a larger glyph, iOS 16 style), screen recording; tray, screen
   sharing, mic/camera on the right.
   Optional thin **strip mode**.
 - **Two looks:**
@@ -130,7 +131,7 @@ Hyprland, terminal and theming configs it works with are next to it (see
 | **Calendar** | Month grid + reminders with natural-language quick-add ("tomorrow 9:00 dentist"). |
 | **Theme** | macOS-Appearance-style picker with a live preview (wallpaper, mini island, mini terminal), presets + *Dynamic* (matugen from the wallpaper). |
 | **Wallpaper** | Keyboard-navigable grid, applies via hyprpaper. |
-| **Settings** | iOS-style grouped list, monochrome. Each section header folds its group (the open/closed state is kept while the session runs, so it reopens as you left it). **Appearance**: Liquid Glass, strip mode. **Display**: Night Shift via hyprsunset (sunset→sunrise or always, warmth slider), Reduce motion, Obsidian follows theme. **Now playing**: album art / track title / lyrics. **Screen recording**: resolution, fps, quality, system audio, microphone, cursor. **Battery**: badge outside the pill, percentage. **Notifications & privacy**: Do Not Disturb, mic/camera indicators. **Calculator**: history. **Weather**: rain alert, manual location. |
+| **Settings** | iOS-style grouped list, monochrome. Each section header folds its group (the open/closed state is kept while the session runs, so it reopens as you left it). **Appearance**: Liquid Glass, strip mode. **Display**: Night Shift via hyprsunset (sunset→sunrise or always, warmth slider), Reduce motion, Obsidian follows theme. **Now playing**: album art / track title / lyrics. **Screen recording**: resolution, fps, quality, system audio, microphone, cursor. **Battery**: badge outside the pill, percentage off / beside / inside the icon. **Notifications & privacy**: Do Not Disturb, mic/camera indicators. **Calculator**: history. **Weather**: rain alert, manual location. |
 | **Tray** | System-tray host (StatusNotifierItem) for Discord, Steam etc.: a 2×2-dot badge next to the pill while any app sits in the tray; icon grid, click opens the app, right click shows its own menu. **SUPER+A** (`qs ipc call tray toggle`). |
 | **Shortcuts** | Live cheat sheet generated from `keybindings.lua`. |
 | **Power menu** | Lock · Sleep · Log Out · Restart · Shut Down · BIOS (restart into firmware setup). Click or press 1–6; Lock and Sleep run at once, the others open into a red "Restart?" pill and run on a second click / Enter (they fold back after 3 s). |
