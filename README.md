@@ -45,14 +45,15 @@ Hyprland, terminal and theming configs it works with are next to it (see
 - **Honest privacy badges.** The mic/camera indicators ignore the island's own cava visualizer and
   the screen recorder's system-audio tap, so they only light up for a real microphone. A blue badge
   shows while an app (Discord, a browser, OBS) is screen sharing through the portal.
-- **Escalating low-battery care.**
+- **Escalating low-battery care**, each as a compact pill (what happened + the level, like the
+  charging pill):
+  - **20 %** — automatic Low Power (which also dims the display a little): "Low Power On", yellow.
+  - **10 %** — "Battery Low", orange, with a Low Power nudge.
+  - **5 %** — "Connect Charger", red, the level pulses.
+  - **1 %** — "Almost Empty", faster pulse.
   - **≤ 10 %** — the battery badge left of the pill always shows, with the minutes left.
-  - **20 %** — remaining time, and automatic Low Power (which also dims the display a little).
-  - **10 %** — a Low Power nudge.
-  - **5 %** — a pulsing critical view with *Dim Display*.
-  - **1 %** — *Sleep Now*.
-- **Hold-to-confirm power menu.** Lock, Sleep, Log Out, Restart and Shut Down are numbered 1–5. You
-  **hold** a number (or a button) for ~1 s; a stray tap never shuts anything down.
+- **Confirm-to-run power menu.** Lock, Sleep, Log Out, Restart, Shut Down and BIOS are numbered 1–6.
+  The risky ones open into a red confirm pill first, so a stray tap never shuts anything down.
 - **Everything is hand-made.** There is no QtQuick.Controls. Switches, sliders, segmented controls,
   chips and sheets are all custom, and the privacy badges and the charging bolt are vector shapes in
   SF Symbols proportions.
@@ -111,7 +112,7 @@ Hyprland, terminal and theming configs it works with are next to it (see
   Tap one for its controls.
 - **Charging** — when you plug in, the pill reads "Charging" with the percentage while a green
   light runs around its outline, ears included.
-- **Low battery** — escalating alerts at 20 / 10 / 5 / 1 % (see above).
+- **Low battery** — compact pills at 20 / 10 / 5 / 1 % (see above).
 - **Workspaces** — on every switch, dots appear inside the pill and the active one moves with an iOS
   page-control "stretch".
 
