@@ -109,6 +109,10 @@ Behavior on scale { NumberAnimation { duration: 220; easing.type: Easing.OutCubi
 
 - **Soft halos/shadows without layers**: `MultiEffect` shadows/blur on an offscreen layer came back as grey boxes after a fullscreen game, so halos are drawn directly. For one simple closed path (the bolt, the plug silhouette), stroke it 5× wide/faint → narrow/darker with round joins. For small tight curves and text (`PathText`), wide strokes render spiky artefacts, so use faint offset copies on rings instead (see `BatteryBadge.qml`'s `haloOffsets`).
 
+- **Mic badge vs. cava**: cava captures the playing app's stream, so pactl shows its source as 4294967295 (none). MicMonitor's pactl path must exclude captures by `node.name` (cava, gsr-*), not only by `.monitor` source index.
+- **MultiEffect blur escapes its item**: with the default auto padding, a blur draws up to `blurMax` px outside the item. In a card that the notch's spring overshoots, that spill shows. Set `autoPaddingEnabled: false` and clip the wrapper.
+- **Hover visuals change instantly**: animating a hover background while its foreground flips at once (badge digit colour) reads as flicker when the cursor sweeps across buttons. Keep hover state changes un-animated and hit areas contiguous.
+
 - **MouseArea inside an item that scales on hover/focus** flickers at the edge: the hit area grows and shrinks with the scale animation, so `entered`/`exited` fire back and forth (the power menu's buttons). Put the MouseArea on an unscaled parent/slot and let only the visuals scale.
 
 - **`Math.random()` inside a size-dependent binding** (`x: Math.random() * root.width`) re-rolls every time the size changes — during the island's spring morph that's every frame, so particles jitter wildly. Store the random fraction once in a `readonly property real fx: Math.random()` and bind `x: fx * root.width`; give decorative layers a fixed size instead of `anchors.fill` on the animating notch.
