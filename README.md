@@ -86,10 +86,11 @@ Hyprland, terminal and theming configs it works with are next to it (see
 ## Features
 
 ### The island
-- **Idle pill** — clock, now-playing (album art, title or a live synced-lyrics line: the pill springs
-  to each line's width, long lines scroll, ♪ in instrumental gaps), cava bars in the
-  album cover's color, unread-notification dot. Floating badges beside it (inset from the screen
-  edge): charging bolt or battery level (optional percentage), screen recording on the left; tray,
+- **Idle pill** — clock; while something plays, one of three now-playing layouts: *album art*
+  ([cover] [clock] [cava]), *track title* ([cover] [title] [cava]) or *lyrics* (just the current
+  synced line, over full-width cava bars in the cover's color; the pill springs to each line's
+  width, long lines scroll, ♪ in instrumental gaps). The small cava bars use the album cover's
+  color. Unread-notification dot. Floating badges beside it (inset from the screen edge): charging bolt or battery level (optional percentage), screen recording on the left; tray,
   screen sharing, mic/camera on the right.
   Optional thin **strip mode**.
 - **Two looks:**
