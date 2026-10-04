@@ -129,7 +129,7 @@ Hyprland, terminal and theming configs it works with are next to it (see
 | **Settings** | iOS-style grouped list. Appearance: Liquid Glass, strip mode. Display: Night Shift via hyprsunset (sunset→sunrise or always, warmth slider), Reduce motion, Obsidian follows theme. **Screen recording**: resolution, fps, quality, system audio, microphone, cursor. **Battery**: badge outside the pill, percentage. Also now-playing mode, Do Not Disturb, privacy indicators, calculator history, weather. |
 | **Tray** | System-tray host (StatusNotifierItem) for Discord, Steam etc.: a 2×2-dot badge next to the pill while any app sits in the tray; icon grid, click opens the app, right click shows its own menu. **SUPER+A** (`qs ipc call tray toggle`). |
 | **Shortcuts** | Live cheat sheet generated from `keybindings.lua`. |
-| **Power menu** | Lock · Sleep · Log Out · Restart · Shut Down; hold 1–5 (or press-and-hold a button). |
+| **Power menu** | Lock · Sleep · Log Out · Restart · Shut Down · BIOS (restart into firmware setup); hold 1–6 (or press-and-hold a button). |
 
 ### Lock screen & login
 - **Lock screen** (`WlSessionLock` + PAM):
